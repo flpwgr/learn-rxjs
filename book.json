@@ -21,14 +21,11 @@
       "url": "https://github.com/btroncone/learn-rxjs/"
     },
     "ga": {
-        "token": "UA-54001708-2"
+      "token": "UA-54001708-2"
     },
     "github-buttons": {
       "repo": "btroncone/learn-rxjs",
-      "types": [
-        "star",
-        "watch"
-      ],
+      "types": ["star", "watch"],
       "size": "large"
     }
   }

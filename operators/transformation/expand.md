@@ -4,26 +4,34 @@
 
 ## Recursively call provided function.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Add one for each invocation
 
-( [jsBin](http://jsbin.com/fuxocepazi/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-okxzcb?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/fuxocepazi/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/nu4apbLt/) )
 
 ```js
+import { interval } from 'rxjs/observable/interval';
+import { of } from 'rxjs/observable/of';
+import { expand, take } from 'rxjs/operators';
+
 //emit 2
-const source = Rx.Observable.of(2);
-const example = source
+const source = of(2);
+const example = source.pipe(
   //recursively call supplied function
-  .expand(val => {
+  expand(val => {
     //2,3,4,5,6
     console.log(`Passed value: ${val}`);
     //3,4,5,6
-    return Rx.Observable.of(1 + val);
-  })
+    return of(1 + val);
+  }),
   //call 5 times
-  .take(5);
+  take(5)
+);
 /*
 	"RESULT: 2"
 	"Passed value: 2"
@@ -40,6 +48,10 @@ const example = source
 const subscribe = example.subscribe(val => console.log(`RESULT: ${val}`));
 ```
 
+### Related Recipes
+
+* [Game Loop](../../recipes/gameloop.md)
+
 ### Additional Resources
 
 * [expand](http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-expand)
@@ -48,4 +60,4 @@ const subscribe = example.subscribe(val => console.log(`RESULT: ${val}`));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/expand.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/expand.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/expand.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/expand.ts)

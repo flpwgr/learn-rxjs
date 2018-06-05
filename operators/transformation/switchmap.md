@@ -35,36 +35,48 @@ time, this can be seen clearly in the
 
 Be careful though, you probably want to avoid `switchMap` in scenarios where
 every request needs to complete, think writes to a database. `switchMap` could
-cancel a request if the source emits quickly enough. In these
-scenarios [mergeMap](mergemap.md) is the correct option.
+cancel a request if the source emits quickly enough. In these scenarios
+[mergeMap](mergemap.md) is the correct option.
+
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
 
 ### Examples
 
 ##### Example 1: Restart interval every 5 seconds
 
-( [jsBin](http://jsbin.com/birepuveya/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-hbuxqv?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/birepuveya/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/6pz981gd/) )
 
 ```js
+import { timer } from 'rxjs/observable/timer';
+import { interval } from 'rxjs/observable/interval';
+import { switchMap } from 'rxjs/operators';
+
 //emit immediately, then every 5s
-const source = Rx.Observable.timer(0, 5000);
+const source = timer(0, 5000);
 //switch to new inner observable when source emits, emit items that are emitted
-const example = source.switchMap(() => Rx.Observable.interval(500));
+const example = source.pipe(switchMap(() => interval(500)));
 //output: 0,1,2,3,4,5,6,7,8,9...0,1,2,3,4,5,6,7,8
 const subscribe = example.subscribe(val => console.log(val));
 ```
 
 ##### Example 2: Reset on every click
 
-( [jsBin](http://jsbin.com/zoruboxogo/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-kki7qa?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/zoruboxogo/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/y11v8aqz/) )
 
 ```js
+import { fromEvent } from 'rxjs/observable/fromEvent';
+import { interval } from 'rxjs/observable/interval';
+import { switchMap, mapTo } from 'rxjs/operators';
+
 //emit every click
-const source = Rx.Observable.fromEvent(document, 'click');
+const source = fromEvent(document, 'click');
 //if another click comes within 3s, message will not be emitted
-const example = source.switchMap(val =>
-  Rx.Observable.interval(3000).mapTo('Hello, I made it!')
+const example = source.pipe(
+  switchMap(val => interval(3000).pipe(mapTo('Hello, I made it!')))
 );
 //(click)...3s...'Hello I made it!'...(click)...2s(click)...
 const subscribe = example.subscribe(val => console.log(val));
@@ -72,21 +84,28 @@ const subscribe = example.subscribe(val => console.log(val));
 
 ##### Example 3: Using a `resultSelector` function
 
-( [jsBin](http://jsbin.com/qobapubeze/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-gwav6n?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/qobapubeze/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/nqfu534y/) )
 
 ```js
+import { timer } from 'rxjs/observable/timer';
+import { interval } from 'rxjs/observable/interval';
+import { switchMap } from 'rxjs/operators';
+
 //emit immediately, then every 5s
-const source = Rx.Observable.timer(0, 5000);
+const source = timer(0, 5000);
 //switch to new inner observable when source emits, invoke project function and emit values
-const example = source.switchMap(
-  () => Rx.Observable.interval(2000),
-  (outerValue, innerValue, outerIndex, innerIndex) => ({
-    outerValue,
-    innerValue,
-    outerIndex,
-    innerIndex
-  })
+const example = source.pipe(
+  switchMap(
+    _ => interval(2000),
+    (outerValue, innerValue, outerIndex, innerIndex) => ({
+      outerValue,
+      innerValue,
+      outerIndex,
+      innerIndex
+    })
+  )
 );
 /*
 	Output:
@@ -100,25 +119,31 @@ const subscribe = example.subscribe(val => console.log(val));
 
 ##### Example 4: Countdown timer with switchMap
 
-( [jsBin](http://jsbin.com/devedeqiga/edit?js,output) |
-[jsFiddle](https://jsfiddle.net/btroncone/ww7zg988/189/) )
+( [StackBlitz](https://stackblitz.com/edit/typescript-ur5svp?file=index.ts&devtoolsheight=50) )
 
 ```js
+import { interval } from 'rxjs/observable/interval';
+import { fromEvent } from 'rxjs/observable/fromEvent';
+import { merge } from 'rxjs/observable/merge';
+import { empty } from 'rxjs/observable/empty';
+import { switchMap, scan, takeWhile, startWith, mapTo } from 'rxjs/operators';
+
 const countdownSeconds = 10;
-const setHTML = id => val => document.getElementById(id).innerHTML = val;
+const setHTML = id => val => (document.getElementById(id).innerHTML = val);
 const pauseButton = document.getElementById('pause');
 const resumeButton = document.getElementById('resume');
-const interval$ = Rx.Observable.interval(1000).mapTo(-1);
+const interval$ = interval(1000).pipe(mapTo(-1));
 
-const pause$ = Rx.Observable.fromEvent(pauseButton, 'click').mapTo(false);
-const resume$ = Rx.Observable.fromEvent(resumeButton, 'click').mapTo(true);
+const pause$ = fromEvent(pauseButton, 'click').pipe(mapTo(false));
+const resume$ = fromEvent(resumeButton, 'click').pipe(mapTo(true));
 
-const timer$ = Rx.Observable
-	.merge(pause$, resume$)
-  .startWith(interval$)
-  .switchMap(val => val ? interval$ : Rx.Observable.empty())
-  .scan((acc, curr) => curr ? curr + acc : acc, countdownSeconds)
-  .takeWhile(v => v >= 0)
+const timer$ = merge(pause$, resume$)
+  .pipe(
+    startWith(true),
+    switchMap(val => (val ? interval$ : empty())),
+    scan((acc, curr) => (curr ? curr + acc : acc), countdownSeconds),
+    takeWhile(v => v >= 0)
+  )
   .subscribe(setHTML('remaining'));
 ```
 
@@ -139,11 +164,14 @@ Resume Timer
 ### Related Recipes
 
 * [Smart Counter](../../recipes/smartcounter.md)
+* [Progress Bar](../../recipes/progressbar.md)
+* [HTTP Polling](../../recipes/http-polling.md)
 
 ### Additional Resources
 
 * [switchMap](http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-switchMap)
   :newspaper: - Official docs
+* [Avoiding switchMap-Related Bugs](https://blog.angularindepth.com/switchmap-bugs-b6de69155524) - Nicholas Jamieson
 * [Starting a stream with switchMap](https://egghead.io/lessons/rxjs-starting-a-stream-with-switchmap?course=step-by-step-async-javascript-with-rxjs)
   :video_camera: :dollar: - John Linquist
 * [Use RxJS switchMap to map and flatten higher order observables](https://egghead.io/lessons/rxjs-use-rxjs-switchmap-to-map-and-flatten-higher-order-observables?course=use-higher-order-observables-in-rxjs-effectively)
@@ -154,4 +182,4 @@ Resume Timer
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/switchMap.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/switchMap.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/switchMap.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/switchMap.ts)

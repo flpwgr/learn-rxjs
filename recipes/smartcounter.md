@@ -8,6 +8,8 @@ a popular library that accomplishes this is
 [Hubspot](https://github.com/HubSpot). Let's see how we can accomplish something
 similar with just a few lines of RxJS.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 #### Vanilla JS
 
 ( [JSBin](http://jsbin.com/jojucaqiki/1/edit?js,output) |
@@ -31,18 +33,20 @@ const input = document.getElementById('range');
 const updateButton = document.getElementById('update');
 
 const subscription = (function(currentNumber) {
-  return Rx.Observable.fromEvent(updateButton, 'click')
-    .map(_ => parseInt(input.value))
-    .switchMap(endRange => {
-      return Rx.Observable.timer(0, 20)
-        .mapTo(positiveOrNegative(endRange, currentNumber))
-        .startWith(currentNumber)
-        .scan((acc, curr) => acc + curr)
-        .takeWhile(takeUntilFunc(endRange, currentNumber));
-    })
-    .do(v => (currentNumber = v))
-    .startWith(currentNumber)
-    .subscribe(updateHTML('display'));
+  return fromEvent(updateButton, 'click').pipe(
+    map(_ => parseInt(input.value)),
+    switchMap(endRange => {
+      return timer(0, 20).pipe(
+        mapTo(positiveOrNegative(endRange, currentNumber)),
+        startWith(currentNumber),
+        scan((acc, curr) => acc + curr),
+        takeWhile(takeUntilFunc(endRange, currentNumber));
+      )
+    }),
+    tap(v => (currentNumber = v)),
+    startWith(currentNumber)
+  )
+  .subscribe(updateHTML('display'));
 })(0);
 ```
 
@@ -61,7 +65,16 @@ appropriate transition.
 
 #### Angular Version
 
+(
+[StackBlitz](https://stackblitz.com/edit/angular-gcnqlq?file=app%2Fnumber-tracker.component.ts)
+)
+
 ```js
+import { Component, Input, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
+import { timer } from 'rxjs/observable/timer';
+import { switchMap, startWith, scan, takeWhile, takeUntil, mapTo } from 'rxjs/operators';
+
 @Component({
   selector: 'number-tracker',
   template: `
@@ -73,36 +86,57 @@ export class NumberTrackerComponent implements OnDestroy {
   set end(endRange: number) {
     this._counterSub$.next(endRange);
   }
+  @Input() countInterval = 20;
   public currentNumber = 0;
   private _counterSub$ = new Subject();
-  private _subscription : Subscription;
+  private _onDestroy$ = new Subject();
 
   constructor() {
-    this._subscription = this._counterSub$
-      .switchMap(endRange => {
-        return timer(0, 20)
-            .mapTo(this.positiveOrNegative(endRange, this.currentNumber))
-            .startWith(this.currentNumber)
-            .scan((acc, curr) => acc + curr)
-            .takeWhile(this.takeUntilFunc(endRange, this.currentNumber));
-      })
-      .subscribe(val => this.currentNumber = val);
+    this._counterSub$
+      .pipe(
+        switchMap(endRange => {
+          return timer(0, this.countInterval).pipe(
+            mapTo(this.positiveOrNegative(endRange, this.currentNumber)),
+            startWith(this.currentNumber),
+            scan((acc: number, curr: number) => acc + curr),
+            takeWhile(this.isApproachingRange(endRange, this.currentNumber))
+          )
+        }),
+        takeUntil(this._onDestroy$)
+      )
+      .subscribe((val: number) => this.currentNumber = val);
   }
 
   private positiveOrNegative(endRange, currentNumber) {
     return endRange > currentNumber ? 1 : -1;
   }
 
-  private takeUntilFunc(endRange, currentNumber) {
+  private isApproachingRange(endRange, currentNumber) {
     return endRange > currentNumber
       ? val => val <= endRange
       : val => val >= endRange;
   }
 
   ngOnDestroy() {
-    this._subscription.unsubscribe();
+    this._onDestroy$.next();
+    this._onDestroy$.complete();
   }
 }
+```
+
+###### HTML
+
+```html
+<p>
+  <input type="number"
+    (keyup.enter)="counterNumber = vanillaInput.value"
+    #vanillaInput>
+  <button
+    (click)="counterNumber = vanillaInput.value">
+    Update number
+  </button>
+</p>
+<number-tracker [end]="counterNumber"></number-tracker>
 ```
 
 ### Operators Used

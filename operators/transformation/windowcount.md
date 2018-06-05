@@ -4,37 +4,46 @@
 
 ## Observable of values from source, emitted each time provided count is fulfilled.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Start new window every x items emitted
 
-( [jsBin](http://jsbin.com/nezuvacexe/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-uhg3vb?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/nezuvacexe/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/xjgbnqp5/) )
 
 ```js
+import { interval } from 'rxjs/observable/interval';
+import { windowCount, mergeAll, tap } from 'rxjs/operators';
+
 //emit every 1s
-const source = Rx.Observable.interval(1000);
-const example = source
+const source = interval(1000);
+const example = source.pipe(
   //start new window every 4 emitted values
-  .windowCount(4)
-  .do(() => console.log('NEW WINDOW!'));
+  windowCount(4),
+  tap(_ => console.log('NEW WINDOW!'))
+);
 
 const subscribeTwo = example
-  //window emits nested observable
-  .mergeAll()
-  /*
-  output:
-  "NEW WINDOW!"
-  0
-  1
-  2
-  3
-  "NEW WINDOW!"
-  4
-  5
-  6
-  7 
-*/
+  .pipe(
+    //window emits nested observable
+    mergeAll()
+    /*
+            output:
+            "NEW WINDOW!"
+            0
+            1
+            2
+            3
+            "NEW WINDOW!"
+            4
+            5
+            6
+            7
+          */
+  )
   .subscribe(val => console.log(val));
 ```
 
@@ -46,4 +55,4 @@ const subscribeTwo = example
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/windowCount.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/windowCount.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/windowCount.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/windowCount.ts)

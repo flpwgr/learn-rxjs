@@ -4,39 +4,49 @@
 
 ## Close window at provided time frame emitting observable of collected values from source.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Open and close window at interval
 
-( [jsBin](http://jsbin.com/tuhaposemo/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-bgpaoi?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/tuhaposemo/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/gnx9fb3h/) )
 
 ```js
+import { timer } from 'rxjs/observable/timer';
+import { interval } from 'rxjs/observable/interval';
+import { windowWhen, tap, mergeAll } from 'rxjs/operators';
+
 //emit immediately then every 1s
-const source = Rx.Observable.timer(0, 1000);
-const example = source
+const source = timer(0, 1000);
+const example = source.pipe(
   //close window every 5s and emit observable of collected values from source
-  .windowWhen(val => Rx.Observable.interval(5000))
-  .do(() => console.log('NEW WINDOW!'));
+  windowWhen(() => interval(5000)),
+  tap(_ => console.log('NEW WINDOW!'))
+);
 
 const subscribeTwo = example
-  //window emits nested observable
-  .mergeAll()
-  /*
-  output:
-  "NEW WINDOW!"
-  0
-  1
-  2
-  3
-  4
-  "NEW WINDOW!"
-  5
-  6
-  7
-  8
-  9
-*/
+  .pipe(
+    //window emits nested observable
+    mergeAll()
+    /*
+      output:
+      "NEW WINDOW!"
+      0
+      1
+      2
+      3
+      4
+      "NEW WINDOW!"
+      5
+      6
+      7
+      8
+      9
+    */
+  )
   .subscribe(val => console.log(val));
 ```
 
@@ -48,4 +58,4 @@ const subscribeTwo = example
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/windowWhen.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/windowWhen.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/windowWhen.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/windowWhen.ts)

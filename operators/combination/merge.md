@@ -13,29 +13,36 @@ instead!
 
 ---
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: merging multiple observables, static method
 
-( [jsBin](http://jsbin.com/conufujapi/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-rkpu4e?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/conufujapi/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/qvq9dscu/) )
 
 ```js
+import { mapTo } from 'rxjs/operators';
+import { interval } from 'rxjs/observable/interval';
+import { merge } from 'rxjs/observable/merge';
+
 //emit every 2.5 seconds
-const first = Rx.Observable.interval(2500);
+const first = interval(2500);
 //emit every 2 seconds
-const second = Rx.Observable.interval(2000);
+const second = interval(2000);
 //emit every 1.5 seconds
-const third = Rx.Observable.interval(1500);
+const third = interval(1500);
 //emit every 1 second
-const fourth = Rx.Observable.interval(1000);
+const fourth = interval(1000);
 
 //emit outputs from one observable
-const example = Rx.Observable.merge(
-  first.mapTo('FIRST!'),
-  second.mapTo('SECOND!'),
-  third.mapTo('THIRD'),
-  fourth.mapTo('FOURTH')
+const example = merge(
+  first.pipe(mapTo('FIRST!')),
+  second.pipe(mapTo('SECOND!')),
+  third.pipe(mapTo('THIRD')),
+  fourth.pipe(mapTo('FOURTH'))
 );
 //output: "FOURTH", "THIRD", "SECOND!", "FOURTH", "FIRST!", "THIRD", "FOURTH"
 const subscribe = example.subscribe(val => console.log(val));
@@ -43,19 +50,26 @@ const subscribe = example.subscribe(val => console.log(val));
 
 ##### Example 2: merge 2 observables, instance method
 
-( [jsBin](http://jsbin.com/wuwujokaqu/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-nq3sfo?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/wuwujokaqu/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/me5ofcr0/) )
 
 ```js
+import { merge } from 'rxjs/operators';
+import { interval } from 'rxjs/observable/interval';
+
 //emit every 2.5 seconds
-const first = Rx.Observable.interval(2500);
+const first = interval(2500);
 //emit every 1 second
-const second = Rx.Observable.interval(1000);
+const second = interval(1000);
 //used as instance method
-const example = first.merge(second);
+const example = first.pipe(merge(second));
 //output: 0,1,0,2....
 const subscribe = example.subscribe(val => console.log(val));
 ```
+### Related Recipes
+
+* [HTTP Polling](../../recipes/http-polling.md)
 
 ### Additional Resources
 
@@ -71,4 +85,4 @@ const subscribe = example.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/merge.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/merge.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/merge.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/merge.ts)

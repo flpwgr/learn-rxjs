@@ -1,14 +1,16 @@
-# catch
+# catchError
 
-#### signature: `catch(project : function): Observable`
+#### signature: `catchError(project : function): Observable`
 
 ## Gracefully handle errors in an observable sequence.
 
 ---
 
-:warning: Remember to return an observable from the catch function!
+:warning: Remember to return an observable from the catchError function!
 
 ---
+
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
 
 ### Examples
 
@@ -22,10 +24,13 @@
 [jsFiddle](https://jsfiddle.net/btroncone/wk4oLLqc/) )
 
 ```js
+import { _throw } from 'rxjs/observable/throw';
+import { of } from 'rxjs/observable/of';
+import { catchError } from 'rxjs/operators';
 //emit error
-const source = Rx.Observable.throw('This is an error!');
+const source = _throw('This is an error!');
 //gracefully handle error, returning observable with error message
-const example = source.catch(val => Rx.Observable.of(`I caught: ${val}`));
+const example = source.pipe(catchError(val => of(`I caught: ${val}`)));
 //output: 'I caught: This is an error'
 const subscribe = example.subscribe(val => console.log(val));
 ```
@@ -36,15 +41,22 @@ const subscribe = example.subscribe(val => console.log(val));
 [jsFiddle](https://jsfiddle.net/btroncone/sLq92gLv/) )
 
 ```js
+import { timer } from 'rxjs/observable/timer';
+import { fromPromise } from 'rxjs/observable/fromPromise';
+import { of } from 'rxjs/observable/of';
+import { mergeMap, catchError } from 'rxjs/operators';
+
 //create promise that immediately rejects
 const myBadPromise = () =>
   new Promise((resolve, reject) => reject('Rejected!'));
 //emit single value after 1 second
-const source = Rx.Observable.timer(1000);
+const source = timer(1000);
 //catch rejected promise, returning observable containing error message
-const example = source.flatMap(() =>
-  Rx.Observable.fromPromise(myBadPromise()).catch(error =>
-    Rx.Observable.of(`Bad Promise: ${error}`)
+const example = source.pipe(
+  mergeMap(_ =>
+    fromPromise(myBadPromise()).pipe(
+      catchError(error => of(`Bad Promise: ${error}`))
+    )
   )
 );
 //output: 'Bad Promise: Rejected'
@@ -59,4 +71,4 @@ const subscribe = example.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/catch.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/catch.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/catchError.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/catchError.ts)

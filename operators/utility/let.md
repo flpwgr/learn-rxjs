@@ -4,6 +4,8 @@
 
 ## Let me have the whole observable.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Reusing error handling logic with let
@@ -50,9 +52,9 @@ const source = Rx.Observable.from([1, 2, 3, 4, 5]);
 const test = source
   .map(val => val + 1)
   /*
-  	this would fail, let behaves differently than most operators
-  	val in this case is an observable
-  */
+    	this would fail, let behaves differently than most operators
+    	val in this case is an observable
+    */
   //.let(val => val + 2)
   .subscribe(val => console.log('VALUE FROM ARRAY: ', val));
 
@@ -113,4 +115,4 @@ const subscribe = obsArrayPlusYourOperators(addTenThenTwenty)
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/let.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/let.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/let.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/let.ts)

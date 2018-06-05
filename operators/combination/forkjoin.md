@@ -35,14 +35,22 @@ item, and you are concerned with the previous emissions `forkJoin` is not the
 correct choice. In these cases you may better off with an operator like
 [combineLatest](combinelatest.md) or [zip](zip.md).
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Observables completing after different durations
 
-( [jsBin](http://jsbin.com/remiduhimu/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-2qr3qi?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/remiduhimu/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/5fj77920/81/) )
 
 ```js
+import { delay, take } from 'rxjs/operators';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { of } from 'rxjs/observable/of';
+import { interval } from 'rxjs/observable/interval';
+
 const myPromise = val =>
   new Promise(resolve =>
     setTimeout(() => resolve(`Promise Resolved: ${val}`), 5000)
@@ -52,15 +60,15 @@ const myPromise = val =>
   when all observables complete, give the last
   emitted value from each as an array
 */
-const example = Rx.Observable.forkJoin(
+const example = forkJoin(
   //emit 'Hello' immediately
-  Rx.Observable.of('Hello'),
+  of('Hello'),
   //emit 'World' after 1 second
-  Rx.Observable.of('World').delay(1000),
+  of('World').pipe(delay(1000)),
   //emit 0 after 1 second
-  Rx.Observable.interval(1000).take(1),
+  interval(1000).pipe(take(1)),
   //emit 0...1 in 1 second interval
-  Rx.Observable.interval(1000).take(2),
+  interval(1000).pipe(take(2)),
   //promise that resolves to 'Promise Resolved' after 5 seconds
   myPromise('RESULT')
 );
@@ -70,27 +78,30 @@ const subscribe = example.subscribe(val => console.log(val));
 
 ##### Example 2: Making a variable number of requests
 
-( [jsBin](http://jsbin.com/febejakapi/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-uxbl41?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/febejakapi/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/0b8Lnh7s/1/) )
 
 ```js
+import { mergeMap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { of } from 'rxjs/observable/of';
+
 const myPromise = val =>
   new Promise(resolve =>
     setTimeout(() => resolve(`Promise Resolved: ${val}`), 5000)
   );
 
-const source = Rx.Observable.of([1, 2, 3, 4, 5]);
+const source = of([1, 2, 3, 4, 5]);
 //emit array of all 5 results
-const example = source.mergeMap(q =>
-  Rx.Observable.forkJoin(...q.map(myPromise))
-);
+const example = source.pipe(mergeMap(q => forkJoin(...q.map(myPromise))));
 /*
   output:
   [
-   "Promise Resolved: 1", 
-   "Promise Resolved: 2", 
-   "Promise Resolved: 3", 
-   "Promise Resolved: 4",    
+   "Promise Resolved: 1",
+   "Promise Resolved: 2",
+   "Promise Resolved: 3",
+   "Promise Resolved: 4",
    "Promise Resolved: 5"
   ]
 */
@@ -99,43 +110,55 @@ const subscribe = example.subscribe(val => console.log(val));
 
 ##### Example 3: Handling errors on outside
 
-( [jsBin](http://jsbin.com/gugawucixi/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-3fgrkn?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/gugawucixi/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/6vz7tjx2/1/) )
 
 ```js
+import { delay, catchError } from 'rxjs/operators';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { of } from 'rxjs/observable/of';
+import { _throw } from 'rxjs/observable/throw';
+
 /*
   when all observables complete, give the last
   emitted value from each as an array
 */
-const example = Rx.Observable.forkJoin(
+const example = forkJoin(
   //emit 'Hello' immediately
-  Rx.Observable.of('Hello'),
+  of('Hello'),
   //emit 'World' after 1 second
-  Rx.Observable.of('World').delay(1000),
+  of('World').pipe(delay(1000)),
   // throw error
-  Rx.Observable.throw('This will error')
-).catch(error => Rx.Observable.of(error));
+  _throw('This will error')
+).pipe(catchError(error => of(error)));
 //output: 'This will Error'
 const subscribe = example.subscribe(val => console.log(val));
 ```
 
-##### Example 4: Getting successful results when one innner observable errors
+##### Example 4: Getting successful results when one inner observable errors
 
-( [jsBin](http://jsbin.com/memajepefe/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-z2nedm?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/memajepefe/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/emdu4doy/1/) )
 
 ```js
+import { delay, catchError } from 'rxjs/operators';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { of } from 'rxjs/observable/of';
+import { _throw } from 'rxjs/observable/throw';
+
 /*
   when all observables complete, give the last
   emitted value from each as an array
 */
-const example = Rx.Observable.forkJoin(
+const example = forkJoin(
   //emit 'Hello' immediately
-  Rx.Observable.of('Hello'),
+  of('Hello'),
   //emit 'World' after 1 second
-  Rx.Observable.of('World').delay(1000),
+  of('World').pipe(delay(1000)),
   // throw error
-  Rx.Observable.throw('This will error').catch(error => Rx.Observable.of(error))
+  _throw('This will error').pipe(catchError(error => of(error)))
 );
 //output: ["Hello", "World", "This will error"]
 const subscribe = example.subscribe(val => console.log(val));

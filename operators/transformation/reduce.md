@@ -10,16 +10,22 @@
 :bulb: If you need the current accumulated value on each emission, try
 [scan](scan.md)!
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Sum a stream of numbers
 
-( [jsBin](http://jsbin.com/dakuneneho/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-bbmye7?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/dakuneneho/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/f8fw7yka/) )
 
 ```js
-const source = Rx.Observable.of(1, 2, 3, 4);
-const example = source.reduce((acc, val) => acc + val);
+import { of } from 'rxjs/observable/of';
+import { reduce } from 'rxjs/operators';
+
+const source = of(1, 2, 3, 4);
+const example = source.pipe(reduce((acc, val) => acc + val));
 //output: Sum: 10'
 const subscribe = example.subscribe(val => console.log('Sum:', val));
 ```
@@ -34,4 +40,4 @@ const subscribe = example.subscribe(val => console.log('Sum:', val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/reduce.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/reduce.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/reduce.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/reduce.ts)

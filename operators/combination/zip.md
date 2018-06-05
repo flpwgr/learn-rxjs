@@ -18,24 +18,31 @@ source!
 
 ---
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: zip multiple observables emitting at alternate intervals
 
-( [jsBin](http://jsbin.com/lireyisira/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-wd2mba?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/lireyisira/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/ton462sg/) )
 
 ```js
-const sourceOne = Rx.Observable.of('Hello');
-const sourceTwo = Rx.Observable.of('World!');
-const sourceThree = Rx.Observable.of('Goodbye');
-const sourceFour = Rx.Observable.of('World!');
+import { delay } from 'rxjs/operators';
+import { of } from 'rxjs/observable/of';
+import { zip } from 'rxjs/observable/zip';
+
+const sourceOne = of('Hello');
+const sourceTwo = of('World!');
+const sourceThree = of('Goodbye');
+const sourceFour = of('World!');
 //wait until all observables have emitted a value then emit all as an array
-const example = Rx.Observable.zip(
+const example = zip(
   sourceOne,
-  sourceTwo.delay(1000),
-  sourceThree.delay(2000),
-  sourceFour.delay(3000)
+  sourceTwo.pipe(delay(1000)),
+  sourceThree.pipe(delay(2000)),
+  sourceFour.pipe(delay(3000))
 );
 //output: ["Hello", "World!", "Goodbye", "World!"]
 const subscribe = example.subscribe(val => console.log(val));
@@ -43,14 +50,19 @@ const subscribe = example.subscribe(val => console.log(val));
 
 ##### Example 2: zip when 1 observable completes
 
-( [jsBin](http://jsbin.com/fisitatesa/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-q1sucs?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/fisitatesa/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/oamyk3xr/) )
 
 ```js
+import { take } from 'rxjs/operators';
+import { interval } from 'rxjs/observable/interval';
+import { zip } from 'rxjs/observable/zip';
+
 //emit every 1s
-const interval = Rx.Observable.interval(1000);
+const source = interval(1000);
 //when one observable completes no more values will be emitted
-const example = Rx.Observable.zip(interval, interval.take(2));
+const example = zip(source, source.pipe(take(2)));
 //output: [0,0]...[1,1]
 const subscribe = example.subscribe(val => console.log(val));
 ```
@@ -65,4 +77,4 @@ const subscribe = example.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/zip.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/zip.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/zip.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/zip.ts)

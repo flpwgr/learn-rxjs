@@ -4,14 +4,20 @@
 
 ## Group into observables based on provided value.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Group by property
 
-( [jsBin](http://jsbin.com/buworowuye/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-j7mjt7?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/buworowuye/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/utncxxvf/) )
 
 ```js
+import { from } from 'rxjs/observable/from';
+import { groupBy, mergeMap, toArray } from 'rxjs/operators';
+
 const people = [
   { name: 'Sue', age: 25 },
   { name: 'Joe', age: 30 },
@@ -19,12 +25,13 @@ const people = [
   { name: 'Sarah', age: 35 }
 ];
 //emit each person
-const source = Rx.Observable.from(people);
+const source = from(people);
 //group by age
-const example = source
-  .groupBy(person => person.age)
+const example = source.pipe(
+  groupBy(person => person.age),
   // return each item in group as array
-  .mergeMap(group => group.toArray());
+  mergeMap(group => group.pipe(toArray()))
+);
 /*
   output:
   [{age: 25, name: "Sue"},{age: 25, name: "Frank"}]
@@ -46,4 +53,4 @@ const subscribe = example.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/groupBy.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/groupBy.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/groupBy.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/groupBy.ts)

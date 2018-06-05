@@ -11,10 +11,12 @@
 
 :bulb: This operator can be used as either a static or instance method!
 
-:bulb: If throughput, not order, is not a primary concern, try [merge](merge.md)
+:bulb: If throughput, not order, is a primary concern, try [merge](merge.md)
 instead!
 
 ---
+
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
 
 ### Examples
 
@@ -24,16 +26,20 @@ instead!
 
 ##### Example 1: concat 2 basic observables
 
-( [jsBin](http://jsbin.com/gegubutele/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-oqm79a?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/gegubutele/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/rxwnr3hh/) )
 
 ```js
+import { concat } from 'rxjs/operators';
+import { of } from 'rxjs/observable/of';
+
 //emits 1,2,3
-const sourceOne = Rx.Observable.of(1, 2, 3);
+const sourceOne = of(1, 2, 3);
 //emits 4,5,6
-const sourceTwo = Rx.Observable.of(4, 5, 6);
+const sourceTwo = of(4, 5, 6);
 //emit values from sourceOne, when complete, subscribe to sourceTwo
-const example = sourceOne.concat(sourceTwo);
+const example = sourceOne.pipe(concat(sourceTwo));
 //output: 1,2,3,4,5,6
 const subscribe = example.subscribe(val =>
   console.log('Example: Basic concat:', val)
@@ -42,36 +48,44 @@ const subscribe = example.subscribe(val =>
 
 ##### Example 2: concat as static method
 
-( [jsBin](http://jsbin.com/xihagewune/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-oqtzx7?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/xihagewune/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/5qdtvhu8/) )
 
 ```js
+import { of } from 'rxjs/observable/of';
+import { concat } from 'rxjs/observable/concat';
+
 //emits 1,2,3
-const sourceOne = Rx.Observable.of(1, 2, 3);
+const sourceOne = of(1, 2, 3);
 //emits 4,5,6
-const sourceTwo = Rx.Observable.of(4, 5, 6);
+const sourceTwo = of(4, 5, 6);
 
 //used as static
-const example = Rx.Observable.concat(sourceOne, sourceTwo);
+const example = concat(sourceOne, sourceTwo);
 //output: 1,2,3,4,5,6
-const subscribe = example.subscribe(val => console.log('Example: static', val));
+const subscribe = example.subscribe(val => console.log(val));
 ```
 
 ##### Example 3: concat with delayed source
 
-( [jsBin](http://jsbin.com/nezonosubi/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-rkvfgp?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/nezonosubi/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/L2s49msx/) )
 
 ```js
+import { delay, concat } from 'rxjs/operators';
+import { of } from 'rxjs/observable/of';
+
 //emits 1,2,3
-const sourceOne = Rx.Observable.of(1, 2, 3);
+const sourceOne = of(1, 2, 3);
 //emits 4,5,6
-const sourceTwo = Rx.Observable.of(4, 5, 6);
+const sourceTwo = of(4, 5, 6);
 
 //delay 3 seconds then emit
-const sourceThree = sourceOne.delay(3000);
+const sourceThree = sourceOne.pipe(delay(3000));
 //sourceTwo waits on sourceOne to complete before subscribing
-const example = sourceThree.concat(sourceTwo);
+const example = sourceThree.pipe(concat(sourceTwo));
 //output: 1,2,3,4,5,6
 const subscribe = example.subscribe(val =>
   console.log('Example: Delayed source one:', val)
@@ -80,15 +94,17 @@ const subscribe = example.subscribe(val =>
 
 ##### Example 4: concat with source that does not complete
 
-( [jsBin](http://jsbin.com/vixajoxaze/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-pccj1d?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/vixajoxaze/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/4bhtb81u/) )
 
 ```js
+import { interval } from 'rxjs/observable/interval';
+import { of } from 'rxjs/observable/of';
+import { concat } from 'rxjs/observable/concat';
+
 //when source never completes, the subsequent observables never runs
-const source = Rx.Observable.concat(
-  Rx.Observable.interval(1000),
-  Rx.Observable.of('This', 'Never', 'Runs')
-);
+const source = concat(interval(1000), of('This', 'Never', 'Runs'));
 //outputs: 0,1,2,3,4....
 const subscribe = source.subscribe(val =>
   console.log(
@@ -108,4 +124,4 @@ const subscribe = source.subscribe(val =>
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/concat.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/concat.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/concat.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/concat.ts)

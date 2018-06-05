@@ -1,4 +1,4 @@
-#first
+# first
 
 #### signature: `first(predicate: function, select: function)`
 
@@ -9,6 +9,8 @@
 :bulb: The counterpart to first is [**last**](last.md)!
 
 ---
+
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
 
 ### Examples
 
@@ -22,9 +24,12 @@
 [jsFiddle](https://jsfiddle.net/btroncone/uncey4v9/) )
 
 ```js
-const source = Rx.Observable.from([1, 2, 3, 4, 5]);
+import { from } from 'rxjs/observable/from';
+import { first } from 'rxjs/operators';
+
+const source = from([1, 2, 3, 4, 5]);
 //no arguments, emit first value
-const example = source.first();
+const example = source.pipe(first());
 //output: "First value: 1"
 const subscribe = example.subscribe(val => console.log(`First value: ${val}`));
 ```
@@ -35,9 +40,12 @@ const subscribe = example.subscribe(val => console.log(`First value: ${val}`));
 [jsFiddle](https://jsfiddle.net/btroncone/pt36r8cu/) )
 
 ```js
-const source = Rx.Observable.from([1, 2, 3, 4, 5]);
+import { from } from 'rxjs/observable/from';
+import { first } from 'rxjs/operators';
+
+const source = from([1, 2, 3, 4, 5]);
 //emit first item to pass test
-const example = source.first(num => num === 5);
+const example = source.pipe(first(num => num === 5));
 //output: "First to pass test: 5"
 const subscribe = example.subscribe(val =>
   console.log(`First to pass test: ${val}`)
@@ -83,4 +91,4 @@ const subscribe = example.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/first.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/first.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/first.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/first.ts)

@@ -4,20 +4,28 @@
 
 ## Delay emitted values determined by provided function.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Delay based on observable
 
-( [jsBin](http://jsbin.com/topohekuje/edit?js,console) |
+(
+[StackBlitz](https://stackblitz.com/edit/typescript-ydbk4j?file=index.ts&devtoolsheight=100)
+| [jsBin](http://jsbin.com/topohekuje/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/b057mxkL/) )
 
 ```js
+import { interval } from 'rxjs/observable/interval';
+import { timer } from 'rxjs/observable/timer';
+import { delayWhen } from 'rxjs/operators';
+
 //emit value every second
-const message = Rx.Observable.interval(1000);
+const message = interval(1000);
 //emit value after five seconds
-const delayForFiveSeconds = () => Rx.Observable.timer(5000);
+const delayForFiveSeconds = () => timer(5000);
 //after 5 seconds, start emitting delayed interval values
-const delayWhenExample = message.delayWhen(delayForFiveSeconds);
+const delayWhenExample = message.pipe(delayWhen(delayForFiveSeconds));
 //log values, delayed for 5 seconds
 //ex. output: 5s....1...2...3
 const subscribe = delayWhenExample.subscribe(val => console.log(val));
@@ -33,4 +41,4 @@ const subscribe = delayWhenExample.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/delayWhen.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/delayWhen.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/delayWhen.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/delayWhen.ts)

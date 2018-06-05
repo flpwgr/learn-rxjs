@@ -24,8 +24,9 @@ const subscribe = source.subscribe(val => console.log(val));
 [jsFiddle](https://jsfiddle.net/btroncone/d9rng4dj/) )
 
 ```js
+import { of } from 'rxjs/observable/of';
 //emits values of any type
-const source = Rx.Observable.of({ name: 'Brian' }, [1, 2, 3], function hello() {
+const source = of({ name: 'Brian' }, [1, 2, 3], function hello() {
   return 'Hello';
 });
 //output: {name: 'Brian}, [1,2,3], function hello() { return 'Hello' }
@@ -42,4 +43,4 @@ const subscribe = source.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/observable/ArrayObservable.ts](https://github.com/ReactiveX/rxjs/blob/master/src/observable/ArrayObservable.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/observable/of.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/observable/of.ts)

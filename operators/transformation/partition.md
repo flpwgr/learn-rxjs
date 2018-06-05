@@ -4,17 +4,23 @@
 
 ## Split one observable into two based on provided predicate.
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Split even and odd numbers
 
-( [jsBin](http://jsbin.com/hipehexaku/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-kyndxr?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/hipehexaku/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/q0xo7gvv/) )
 
 ```js
-const source = Rx.Observable.from([1, 2, 3, 4, 5, 6]);
+import { from } from 'rxjs/observable/from';
+import { partition, map } from 'rxjs/operators';
+
+const source = from([1, 2, 3, 4, 5, 6]);
 //first value is true, second false
-const [evens, odds] = source.partition(val => val % 2 === 0);
+const [evens, odds] = source.pipe(partition(val => val % 2 === 0));
 /*
   Output:
   "Even: 2"
@@ -24,30 +30,37 @@ const [evens, odds] = source.partition(val => val % 2 === 0);
   "Odd: 3"
   "Odd: 5"
 */
-const subscribe = Rx.Observable.merge(
-  evens.map(val => `Even: ${val}`),
-  odds.map(val => `Odd: ${val}`)
+const subscribe = merge(
+  evens.pipe(map(val => `Even: ${val}`)),
+  odds.pipe(map(val => `Odd: ${val}`))
 ).subscribe(val => console.log(val));
 ```
 
 ##### Example 2: Split success and errors
 
-( [jsBin](http://jsbin.com/kukuguhuri/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-hiqolh?file=index.ts&devtoolsheight=50) |
+[jsBin](http://jsbin.com/kukuguhuri/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/fe246u5p/) )
 
 ```js
-const source = Rx.Observable.from([1, 2, 3, 4, 5, 6]);
+import { from } from 'rxjs/observable/from';
+import { of } from 'rxjs/observable/of';
+import { merge } from 'rxjs/observable/merge';
+import { map, partition, catchError } from 'rxjs/operators';
+
+const source = from([1, 2, 3, 4, 5, 6]);
 //if greater than 3 throw
-const example = source
-  .map(val => {
+const example = source.pipe(
+  map(val => {
     if (val > 3) {
       throw `${val} greater than 3!`;
     }
     return { success: val };
-  })
-  .catch(val => Rx.Observable.of({ error: val }));
+  }),
+  catchError(val => of({ error: val }))
+);
 //split on success or error
-const [success, error] = example.partition(res => res.success);
+const [success, error] = example.pipe(partition(res => res.success));
 /*
   Output:
   "Success! 1"
@@ -55,9 +68,9 @@ const [success, error] = example.partition(res => res.success);
   "Success! 3"
   "Error! 4 greater than 3!"
 */
-const subscribe = Rx.Observable.merge(
-  success.map(val => `Success! ${val.success}`),
-  error.map(val => `Error! ${val.error}`)
+const subscribe = merge(
+  success.pipe(map(val => `Success! ${val.success}`)),
+  error.pipe(map(val => `Error! ${val.error}`))
 ).subscribe(val => console.log(val));
 ```
 
@@ -69,4 +82,4 @@ const subscribe = Rx.Observable.merge(
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/partition.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/partition.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/partition.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/partition.ts)

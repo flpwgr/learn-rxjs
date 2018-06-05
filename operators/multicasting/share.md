@@ -10,23 +10,32 @@
 
 ---
 
+<div class="ua-ad"><a href="https://ultimateangular.com/?ref=76683_kee7y7vk"><img src="https://ultimateangular.com/assets/img/banners/ua-leader.svg"></a></div>
+
 ### Examples
 
 ##### Example 1: Multiple subscribers sharing source
 
-( [jsBin](http://jsbin.com/jobiyomari/1/edit?js,console) |
+(
+[StackBlitz](https://stackblitz.com/edit/typescript-ufnzzz?file=index.ts&devtoolsheight=100)
+| [jsBin](http://jsbin.com/jobiyomari/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/Lmesxxaq/) )
 
 ```js
+import { timer } from 'rxjs/observable/timer';
+import { tap, mapTo, share } from 'rxjs/operators';
+
 //emit value in 1s
-const source = Rx.Observable.timer(1000);
+const source = timer(1000);
 //log side effect, emit result
-const example = source
-  .do(() => console.log('***SIDE EFFECT***'))
-  .mapTo('***RESULT***');
+const example = source.pipe(
+  tap(() => console.log('***SIDE EFFECT***')),
+  mapTo('***RESULT***')
+);
+
 /*
   ***NOT SHARED, SIDE EFFECT WILL BE EXECUTED TWICE***
-  output: 
+  output:
   "***SIDE EFFECT***"
   "***RESULT***"
   "***SIDE EFFECT***"
@@ -36,10 +45,10 @@ const subscribe = example.subscribe(val => console.log(val));
 const subscribeTwo = example.subscribe(val => console.log(val));
 
 //share observable among subscribers
-const sharedExample = example.share();
+const sharedExample = example.pipe(share());
 /*
   ***SHARED, SIDE EFFECT EXECUTED ONCE***
-  output: 
+  output:
   "***SIDE EFFECT***"
   "***RESULT***"
   "***RESULT***"
@@ -47,6 +56,11 @@ const sharedExample = example.share();
 const subscribeThree = sharedExample.subscribe(val => console.log(val));
 const subscribeFour = sharedExample.subscribe(val => console.log(val));
 ```
+
+### Related Recipes
+
+* [Progress Bar](../../recipes/progressbar.md)
+* [Game Loop](../../recipes/gameloop.md)
 
 ### Additional Resources
 
@@ -58,4 +72,4 @@ const subscribeFour = sharedExample.subscribe(val => console.log(val));
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/share.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/share.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/share.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/share.ts)

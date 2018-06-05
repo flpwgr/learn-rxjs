@@ -8,7 +8,7 @@
 
 ##### Example 1: Buffer for 2 seconds
 
-( [jsBin](http://jsbin.com/bafakiyife/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-9dbkwq?file=index.ts&devtoolsheight=50) | [jsBin](http://jsbin.com/bafakiyife/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/vx7vwg01/) )
 
 ```js
@@ -25,18 +25,21 @@ const subscribe = example.subscribe(val =>
 
 ##### Example 2: Multiple active buffers
 
-( [jsBin](http://jsbin.com/tadiwiniri/1/edit?js,console) |
+( [StackBlitz](https://stackblitz.com/edit/typescript-n9btgb?file=index.ts&devtoolsheight=50) | [jsBin](http://jsbin.com/tadiwiniri/1/edit?js,console) |
 [jsFiddle](https://jsfiddle.net/btroncone/7k4ygj1x/) )
 
 ```js
+import { interval } from 'rxjs/observable/interval';
+import { bufferTime } from 'rxjs/operators';
+
 //Create an observable that emits a value every 500ms
-const source = Rx.Observable.interval(500);
+const source = interval(500);
 /*
 bufferTime also takes second argument, when to start the next buffer (time in ms)
 for instance, if we have a bufferTime of 2 seconds but second argument (bufferCreationInterval) of 1 second:
 ex. output: [0,1,2]...[1,2,3,4,5]...[3,4,5,6,7]
 */
-const example = source.bufferTime(2000, 1000);
+const example = source.pipe(bufferTime(2000, 1000));
 //Print values to console
 const subscribe = example.subscribe(val =>
   console.log('Start Buffer Every 1s:', val)
@@ -51,4 +54,4 @@ const subscribe = example.subscribe(val =>
 ---
 
 > :file_folder: Source Code:
-> [https://github.com/ReactiveX/rxjs/blob/master/src/operator/bufferTime.ts](https://github.com/ReactiveX/rxjs/blob/master/src/operator/bufferTime.ts)
+> [https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/bufferTime.ts](https://github.com/ReactiveX/rxjs/blob/master/src/internal/operators/bufferTime.ts)
